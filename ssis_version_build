@@ -1,0 +1,24 @@
+use SSISDB
+
+select  top 50 
+         xs.execution_path
+        ,cast(xs.start_time as datetime2(0)) as start_time
+        ,x.project_version_lsn
+        ,p.version_build
+		,x.package_name
+		,x.executable_name
+from    internal.executables x
+join    internal.executable_statistics xs on x.executable_id = xs.executable_id
+join    internal.packages p 
+                on  x.project_id = p.project_id 
+                and x.project_version_lsn = p.project_version_lsn
+                and x.package_name = p.name
+
+where   x.package_name = 'RBB_AVAF_CHANNEL_UPDATE.dtsx'
+and     x.executable_name = 'RBB_AVAF_CHANNEL_UPDATE'
+
+order by start_time desc
+
+select  max(version_build) as latest_version_build
+from    internal.packages
+where   name = 'RBB_AVAF_CHANNEL_UPDATE.dtsx'
